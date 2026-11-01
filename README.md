@@ -128,3 +128,11 @@ Destructors only execute on normal exit (exit(3) or returning from main()). Fata
 **Inherited Descriptors** 
 
 Descriptors already open when ```libfdhunt``` loads—such as inherited standard streams or file descriptors passed across execve(2) from a parent process are not tracked. Only descriptors allocated through intercepted libc calls during the program's own runtime are registered.
+
+
+## Example Demo Output
+
+
+This is a demo output of `libfdhunt` catching and reporting unclosed file descriptors at process exit:
+
+![libfdhunt Leak Report Demo](./assets/libfdhunt_demo.png.png)
