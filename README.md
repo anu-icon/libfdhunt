@@ -136,3 +136,9 @@ Descriptors already open when ```libfdhunt``` loads—such as inherited standard
 This is a demo output of `libfdhunt` catching and reporting unclosed file descriptors at process exit:
 
 ![libfdhunt Leak Report Demo](./assets/libfdhunt_demo.png.png)
+
+
+## LICENSE
+
+
+This project is licensed under MIT License
