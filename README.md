@@ -1,8 +1,17 @@
 # libfdhunt
 
-## A lightweight LD_PRELOAD shared library that catches and reports unclosed file descriptor leaks in Linux binaries at process exit. 
+## A lightweight C/C++ file descriptor leak detector on Linux using LD_PRELOAD
 
 Works via interposing at the dynamic linker boundary, requiring no source code modification, recompilation, or runtime binary translation. 
+
+## Example Demo Output
+
+
+This is a demo output of `libfdhunt` catching and reporting unclosed file descriptors at process exit:
+
+![libfdhunt Leak Report Demo](./assets/libfdhunt_demo.png.png)
+
+
 
 ### **Rationale**
 
@@ -129,13 +138,6 @@ Destructors only execute on normal exit (exit(3) or returning from main()). Fata
 
 Descriptors already open when ```libfdhunt``` loads—such as inherited standard streams or file descriptors passed across execve(2) from a parent process are not tracked. Only descriptors allocated through intercepted libc calls during the program's own runtime are registered.
 
-
-## Example Demo Output
-
-
-This is a demo output of `libfdhunt` catching and reporting unclosed file descriptors at process exit:
-
-![libfdhunt Leak Report Demo](./assets/libfdhunt_demo.png.png)
 
 
 ## LICENSE
