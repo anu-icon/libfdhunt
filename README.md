@@ -34,10 +34,12 @@ Capturing short-lived descriptors or debugging transient processes that exit rap
 
 | Approach | Setup / Permissions | Runtime Overhead | Detects Short-Lived / Fast-Exiting Leaks? | Alters Thread Scheduling? |
 | :--- | :--- | :--- | :--- | :--- |
-| **`libfdhunt`** (`LD_PRELOAD`) | Zero setup, unprivileged user | Near-zero (native speed, $O(1)$) | Yes (sweeps at process exit) | No |
-| **Valgrind** (`--track-fds=yes`) | Standard package install | **10x–50x slowdown** (CPU emulation) | Yes | **Yes** (masks race conditions) |
-| **eBPF / BCC / bpftrace** | **Requires root / `CAP_BPF`, kernel BTF headers** | Low (kernel-level) | Difficult (requires external trace capture) | No |
-| **Manual inspection (`/proc/$PID/fd`, `lsof`)** | Unprivileged / process owner | None | **No** (polling misses quick exits) | No |
+| **`libfdhunt`** (`LD_PRELOAD`) | Zero setup, unprivileged user | Near-zero (native speed, `O(1)`) | Yes (sweeps at process exit) | No |
+| **`strace`** (`-f -e trace=desc`) | Unprivileged for own child, but blocked in standard Docker/K8s without `CAP_SYS_PTRACE` | **10x–50x slowdown** (`ptrace` syscall trap overhead) | Yes (via log scraping) | **Yes** (forces kernel stops/context switches) |
+| **Valgrind** (`--track-fds=yes`) | Standard package install | **10x–50x slowdown** (CPU emulation) | Yes | **Yes** (serializes execution, masks race conditions) |
+| **eBPF / BCC / bpftrace** | Requires `root` / `CAP_BPF`, kernel BTF headers | Low (kernel-level) | Difficult (requires external trace capture) | No |
+| **Manual polling** (`/proc/$PID/fd`, `lsof`) | Unprivileged / process owner | None (polling) | **No** (misses transient churn before exit) | No |
+
 
 ### Why not Valgrind?
 Valgrind’s `--track-fds=yes` is the gold standard for full program inspection, but dynamic binary translation incurs massive overhead. For long integration suites, high-throughput network services, or timing-dependent bugs, that 10x–50x penalty frequently alters thread interleaving, masks race conditions, and makes tests take hours instead of minutes. `libfdhunt` runs at native CPU speed.
